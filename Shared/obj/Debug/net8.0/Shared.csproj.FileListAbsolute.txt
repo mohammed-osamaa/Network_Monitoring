@@ -1,0 +1,11 @@
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/bin/Debug/net8.0/Shared.deps.json
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/bin/Debug/net8.0/Shared.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/bin/Debug/net8.0/Shared.pdb
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/Shared.GeneratedMSBuildEditorConfig.editorconfig
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/Shared.AssemblyInfoInputs.cache
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/Shared.AssemblyInfo.cs
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/Shared.csproj.CoreCompileInputs.cache
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/Shared.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/refint/Shared.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/Shared.pdb
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Shared/obj/Debug/net8.0/ref/Shared.dll

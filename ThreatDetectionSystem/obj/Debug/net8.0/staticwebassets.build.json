@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "5hvdG2uGLZKEconYfbvqHMmeLm9DpBFFd3xBpyhsF4g=",
+  "Source": "ThreatDetectionSystem",
+  "BasePath": "_content/ThreatDetectionSystem",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,17 @@
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/ServiceAbstraction_Layer.deps.json
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/ServiceAbstraction_Layer.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/ServiceAbstraction_Layer.pdb
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/Shared.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/Shared.pdb
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.csproj.AssemblyReference.cache
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.GeneratedMSBuildEditorConfig.editorconfig
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.AssemblyInfoInputs.cache
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.AssemblyInfo.cs
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.csproj.CoreCompileInputs.cache
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.csproj.CopyComplete
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/refint/ServiceAbstraction_Layer.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ServiceAbstraction_Layer.pdb
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/obj/Debug/net8.0/ref/ServiceAbstraction_Layer.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/Domain_Layer.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/ServiceAbstraction_Layer/bin/Debug/net8.0/Domain_Layer.pdb
