@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../build/ThreatDetectionSystem.props" />
-</Project>

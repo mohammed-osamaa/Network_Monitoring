@@ -1,0 +1,18 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio / Rider
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Build outputs
+*.dll
+*.pdb
+*.exe
+
+# OS files
+.DS_Store
+Thumbs.db
