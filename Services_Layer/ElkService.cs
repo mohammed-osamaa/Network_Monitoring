@@ -1,4 +1,3 @@
-// Services_Layer/ElkService.cs
 using System.Text;
 using System.Text.Json;
 using Domain_Layer.Models;
@@ -14,6 +13,9 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
     private string Index => config["Elk:Index"] ?? "suricata-*";
     private string BaseUrl => config["Elk:BaseUrl"]!;
 
+    // ─────────────────────────────────────────────
+    // CONNECTION CHECK
+    // ─────────────────────────────────────────────
     public async Task<bool> CheckConnectionAsync()
     {
         try
@@ -24,23 +26,53 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
         catch
         {
             return false;
-        }   
+        }
     }
 
-    public async Task<List<Alert>> GetAllAlertsFromElkAsync()
+    // ─────────────────────────────────────────────
+    // GET ALERTS (TIME RANGE SUPPORTED)
+    // ─────────────────────────────────────────────
+    public async Task<List<Alert>> GetAllAlertsFromElkAsync(TimeSpan? timeRange = null)
     {
         try
         {
+            var range = timeRange ?? TimeSpan.FromHours(1);
+
             var queryObj = new
             {
                 size = 10000,
+                sort = new[]
+                {
+                    new { timestamp = new { order = "desc" } }
+                },
                 query = new
                 {
-                    exists = new { field = "alert" } 
+                    @bool = new
+                    {
+                        filter = new object[]
+                        {
+                            new { exists = new { field = "alert" } },
+                            new
+                            {
+                                range = new
+                                {
+                                    timestamp = new
+                                    {
+                                        gte = $"now-{range.TotalSeconds}s",
+                                        lte = "now"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 _source = new[]
                 {
-                    "timestamp", "src_ip", "dest_ip", "alert.severity", "alert.signature"
+                    "timestamp",
+                    "src_ip",
+                    "dest_ip",
+                    "alert.severity",
+                    "alert.signature"
                 }
             };
 
@@ -52,7 +84,9 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                logger.LogError("ELK search failed [{Status}]: {Error}", (int)response.StatusCode, error);
+                logger.LogError("ELK search failed [{Status}]: {Error}",
+                    (int)response.StatusCode, error);
+
                 return new List<Alert>();
             }
 
@@ -61,26 +95,40 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unexpected error fetching all alerts");
+            logger.LogError(ex, "Unexpected error fetching alerts");
             return new List<Alert>();
         }
     }
 
-    public async Task<AlertStats> GetAlertStatsAsync()
+    // ─────────────────────────────────────────────
+    // GET STATS (SYNCED WITH SAME TIME RANGE)
+    // ─────────────────────────────────────────────
+    public async Task<AlertStats> GetAlertStatsAsync(TimeSpan? timeRange = null)
     {
         try
         {
+            var range = timeRange ?? TimeSpan.FromHours(1);
+
             var queryObj = new
             {
                 size = 0,
                 query = new
                 {
-                    range = new
+                    @bool = new
                     {
-                        timestamp = new
+                        filter = new object[]
                         {
-                            gte = DateTime.UtcNow.AddHours(-24)
-                                      .ToString("yyyy-MM-ddTHH:mm:ssZ")
+                            new
+                            {
+                                range = new
+                                {
+                                    timestamp = new
+                                    {
+                                        gte = $"now-{range.TotalSeconds}s",
+                                        lte = "now"
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -88,18 +136,27 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
                 {
                     by_severity = new
                     {
-                        terms = new { field = "alert.severity" }
+                        terms = new
+                        {
+                            field = "alert.severity"
+                        }
                     }
                 }
             };
 
-            var json     = JsonSerializer.Serialize(queryObj);
-            var content  = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync(
-                $"{BaseUrl}/{Index}/_search", content);
+            var json = JsonSerializer.Serialize(queryObj);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync($"{BaseUrl}/{Index}/_search", content);
 
             if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                logger.LogError("ELK stats failed [{Status}]: {Error}",
+                    (int)response.StatusCode, error);
+
                 return new AlertStats();
+            }
 
             var responseJson = await response.Content.ReadAsStringAsync();
             return ParseStats(responseJson);
@@ -111,7 +168,9 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
         }
     }
 
-    // ─── Parsing Helpers ───────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    // PARSE ALERTS
+    // ─────────────────────────────────────────────
     private List<Alert> ParseAlerts(string responseJson)
     {
         var alerts = new List<Alert>();
@@ -127,21 +186,27 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
             if (!hit.TryGetProperty("_source", out var source)) continue;
             if (!source.TryGetProperty("alert", out var alertObj)) continue;
 
+            var timestampRaw = source.GetProperty("timestamp").GetString();
+
             alerts.Add(new Alert
             {
-                Id             = idProp.GetString(), 
-                Source_IP      = source.GetProperty("src_ip").GetString(),
+                Id = idProp.GetString(),
+                Source_IP = source.GetProperty("src_ip").GetString(),
                 Destination_IP = source.GetProperty("dest_ip").GetString(),
-                Severity       = alertObj.GetProperty("severity").GetInt32().ToString(),
-                Message        = alertObj.GetProperty("signature").GetString(),
-                Timestamp      = DateTime.Parse(source.GetProperty("timestamp").GetString())
-                    .ToLocalTime() 
+                Severity = alertObj.GetProperty("severity").GetInt32().ToString(),
+                Message = alertObj.GetProperty("signature").GetString(),
+
+                // 🔥 SAFE timezone handling
+                Timestamp = DateTimeOffset.Parse(timestampRaw).UtcDateTime
             });
         }
 
         return alerts;
     }
 
+    // ─────────────────────────────────────────────
+    // PARSE STATS
+    // ─────────────────────────────────────────────
     private AlertStats ParseStats(string responseJson)
     {
         var stats = new AlertStats();
@@ -149,35 +214,24 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
         using var doc = JsonDocument.Parse(responseJson);
 
         if (!doc.RootElement.TryGetProperty("aggregations", out var aggs)) return stats;
-        if (!aggs.TryGetProperty("by_severity", out var bySeverity))       return stats;
-        if (!bySeverity.TryGetProperty("buckets", out var buckets))        return stats;
+        if (!aggs.TryGetProperty("by_severity", out var bySeverity)) return stats;
+        if (!bySeverity.TryGetProperty("buckets", out var buckets)) return stats;
 
         foreach (var bucket in buckets.EnumerateArray())
         {
-            var key   = bucket.GetProperty("key").GetInt32();
+            var key = bucket.GetProperty("key").GetInt32();
             var count = bucket.GetProperty("doc_count").GetInt64();
 
             switch (key)
             {
                 case 1: stats.Critical = count; break;
-                case 2: stats.Warning  = count; break;
-                case 3: stats.Info     = count; break;
+                case 2: stats.Warning = count; break;
+                case 3: stats.Info = count; break;
             }
 
             stats.Total += count;
         }
 
         return stats;
-    }
-
-    // ─── Safe Property Helpers ─────────────────────────────────────
-
-    private static string? GetString(JsonElement el, string prop) =>
-        el.TryGetProperty(prop, out var v) ? v.GetString() : null;
-
-    private static DateTime GetDateTime(JsonElement el, string prop)
-    {
-        if (!el.TryGetProperty(prop, out var v)) return DateTime.UtcNow;
-        return v.TryGetDateTime(out var dt) ? dt : DateTime.UtcNow;
     }
 }

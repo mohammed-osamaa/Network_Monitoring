@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ThreatDetectionSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a1cebda6d3fc2438f8c82c29b923b4670abdf7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("ThreatDetectionSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ThreatDetectionSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

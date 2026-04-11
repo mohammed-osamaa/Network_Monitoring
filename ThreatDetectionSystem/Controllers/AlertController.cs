@@ -13,16 +13,33 @@ public class AlertController : ControllerBase
    public AlertController(IElkService elk) => _elk = elk;
 
    [HttpGet]
-   public async Task<IActionResult> GetAll()
+   public async Task<IActionResult> GetAll([FromQuery] string range = "1h")
    {
-      var alerts = await _elk.GetAllAlertsFromElkAsync();
+      var timeRange = range switch
+      {
+         "30s" => TimeSpan.FromSeconds(30),
+         "1m"  => TimeSpan.FromMinutes(1),
+         "1h"  => TimeSpan.FromHours(1),
+         "24h" => TimeSpan.FromHours(24),
+         _     => TimeSpan.FromHours(1)
+      };
+
+      var alerts = await _elk.GetAllAlertsFromElkAsync(timeRange);
       return Ok(alerts);
    }
 
    [HttpGet("stats")]
-   public async Task<IActionResult> Stats()
+   public async Task<IActionResult> Stats([FromQuery] string range = "1h")
    {
-      var stats = await _elk.GetAlertStatsAsync();
+      var timeRange = range switch
+      {
+         "30s" => TimeSpan.FromSeconds(30),
+         "1m"  => TimeSpan.FromMinutes(1),
+         "1h"  => TimeSpan.FromHours(1),
+         "24h" => TimeSpan.FromHours(24),
+         _     => TimeSpan.FromHours(1)
+      };
+      var stats = await _elk.GetAlertStatsAsync(timeRange);
       return Ok(stats);
    }
 

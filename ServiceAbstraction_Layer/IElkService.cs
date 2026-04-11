@@ -4,7 +4,7 @@ namespace ServiceAbstraction_Layer;
 
 public interface IElkService
 {
-    Task<List<Alert>> GetAllAlertsFromElkAsync(); // بديل GetAlertsFromElkAsync
-    Task<AlertStats> GetAlertStatsAsync();
+    Task<List<Alert>> GetAllAlertsFromElkAsync(TimeSpan? timeRange = null); // بديل GetAlertsFromElkAsync
+    Task<AlertStats> GetAlertStatsAsync(TimeSpan? timeRange = null);
     Task<bool> CheckConnectionAsync();
 }

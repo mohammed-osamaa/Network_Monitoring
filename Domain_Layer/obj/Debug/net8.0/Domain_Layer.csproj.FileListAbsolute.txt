@@ -9,3 +9,4 @@
 /home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Domain_Layer/obj/Debug/net8.0/refint/Domain_Layer.dll
 /home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Domain_Layer/obj/Debug/net8.0/Domain_Layer.pdb
 /home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Domain_Layer/obj/Debug/net8.0/ref/Domain_Layer.dll
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Domain_Layer/obj/Debug/net8.0/Domain_Layer.sourcelink.json

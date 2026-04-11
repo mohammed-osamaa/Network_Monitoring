@@ -21,3 +21,4 @@
 /home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Services_Layer/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
 /home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Services_Layer/bin/Debug/net8.0/Microsoft.Extensions.Configuration.Abstractions.xml
 /home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Services_Layer/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.xml
+/home/mohammed_osamaa/Desktop/Graduation_Project/ThreatDetectionSystem/Services_Layer/obj/Debug/net8.0/Services_Layer.sourcelink.json
