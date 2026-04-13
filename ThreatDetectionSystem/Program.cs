@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using ServiceAbstraction_Layer;
 using Services_Layer;
 using ThreatDetectionSystem.Hubs;
