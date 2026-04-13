@@ -21,7 +21,7 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
         try
         {
             var response = await httpClient.GetAsync($"{BaseUrl}/_cluster/health");
-            return response.IsSuccessStatusCode;
+            return response.IsSuccessStatusCode;    
         }
         catch
         {
@@ -36,46 +36,50 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
     {
         try
         {
-            var range = timeRange ?? TimeSpan.FromHours(1);
-
-            var queryObj = new
-            {
-                size = 10000,
-                sort = new[]
+            var queryObj = timeRange.HasValue
+                ? new
                 {
-                    new { timestamp = new { order = "desc" } }
-                },
-                query = new
-                {
-                    @bool = new
+                    size = 10000,
+                    sort = new[] { new { timestamp = new { order = "desc" } } },
+                    query = new
                     {
-                        filter = new object[]
+                        @bool = new
                         {
-                            new { exists = new { field = "alert" } },
-                            new
+                            filter = new object[]
                             {
-                                range = new
+                                new { exists = new { field = "alert" } },
+                                new
                                 {
-                                    timestamp = new
+                                    range = new
                                     {
-                                        gte = $"now-{range.TotalSeconds}s",
-                                        lte = "now"
+                                        timestamp = new
+                                        {
+                                            gte = $"now-{(int)timeRange.Value.TotalSeconds}s",
+                                            lte = "now"
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                },
-                _source = new[]
-                {
-                    "timestamp",
-                    "src_ip",
-                    "dest_ip",
-                    "alert.severity",
-                    "alert.signature"
+                    },
+                    _source = new[] { "timestamp", "src_ip", "dest_ip", "alert.severity", "alert.signature" }
                 }
-            };
-
+                : new  // مفيش range → رجّع كل البيانات
+                {
+                    size = 10000,
+                    sort = new[] { new { timestamp = new { order = "desc" } } },
+                    query = new
+                    {
+                        @bool = new
+                        {
+                            filter = new object[]
+                            {
+                                new { exists = new { field = "alert" } }
+                            }
+                        }
+                    },
+                    _source = new[] { "timestamp", "src_ip", "dest_ip", "alert.severity", "alert.signature" }
+                };
             var json = JsonSerializer.Serialize(queryObj);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -104,49 +108,59 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
     // GET STATS (SYNCED WITH SAME TIME RANGE)
     // ─────────────────────────────────────────────
     public async Task<AlertStats> GetAlertStatsAsync(TimeSpan? timeRange = null)
-    {
+    { 
         try
         {
-            var range = timeRange ?? TimeSpan.FromHours(1);
-
-            var queryObj = new
-            {
-                size = 0,
-                query = new
+            var queryObj = timeRange.HasValue
+                ? new
                 {
-                    @bool = new
+                    size = 0,
+                    query = new
                     {
-                        filter = new object[]
+                        @bool = new
                         {
-                            new
+                            filter = new object[]
                             {
-                                range = new
+                                new
                                 {
-                                    timestamp = new
+                                    range = new
                                     {
-                                        gte = $"now-{range.TotalSeconds}s",
-                                        lte = "now"
+                                        timestamp = new
+                                        {
+                                            gte = $"now-{(int)timeRange.Value.TotalSeconds}s",
+                                            lte = "now"
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                },
-                aggs = new
-                {
-                    by_severity = new
+                    },
+                    aggs = new
                     {
-                        terms = new
-                        {
-                            field = "alert.severity"
-                        }
+                        by_severity = new { terms = new { field = "alert.severity" } }
                     }
                 }
-            };
+                : new  // مفيش range → إحصائيات كل البيانات
+                {
+                    size = 0,
+                    query = new
+                    {
+                        @bool = new
+                        {
+                            filter = new object[]
+                            {
+                                new { exists = new { field = "alert" } }
+                            }
+                        }
+                    },
+                    aggs = new
+                    {
+                        by_severity = new { terms = new { field = "alert.severity" } }
+                    }
+                };
 
-            var json = JsonSerializer.Serialize(queryObj);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
+            var json     = JsonSerializer.Serialize(queryObj);
+            var content  = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync($"{BaseUrl}/{Index}/_search", content);
 
             if (!response.IsSuccessStatusCode)
@@ -154,7 +168,6 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
                 var error = await response.Content.ReadAsStringAsync();
                 logger.LogError("ELK stats failed [{Status}]: {Error}",
                     (int)response.StatusCode, error);
-
                 return new AlertStats();
             }
 
@@ -209,29 +222,31 @@ public class ElkService(HttpClient httpClient, IConfiguration config, ILogger<El
     // ─────────────────────────────────────────────
     private AlertStats ParseStats(string responseJson)
     {
-        var stats = new AlertStats();
+         var stats = new AlertStats();
 
-        using var doc = JsonDocument.Parse(responseJson);
+         using var doc = JsonDocument.Parse(responseJson);
 
-        if (!doc.RootElement.TryGetProperty("aggregations", out var aggs)) return stats;
-        if (!aggs.TryGetProperty("by_severity", out var bySeverity)) return stats;
-        if (!bySeverity.TryGetProperty("buckets", out var buckets)) return stats;
+         if (!doc.RootElement.TryGetProperty("aggregations", out var aggs)) return stats;
+         if (!aggs.TryGetProperty("by_severity", out var bySeverity))       return stats;
+         if (!bySeverity.TryGetProperty("buckets", out var buckets))        return stats;
 
-        foreach (var bucket in buckets.EnumerateArray())
-        {
-            var key = bucket.GetProperty("key").GetInt32();
-            var count = bucket.GetProperty("doc_count").GetInt64();
+         foreach (var bucket in buckets.EnumerateArray())
+         {
+             var key   = bucket.GetProperty("key").GetInt32();
+             var count = bucket.GetProperty("doc_count").GetInt64();
 
-            switch (key)
-            {
-                case 1: stats.Critical = count; break;
-                case 2: stats.Warning = count; break;
-                case 3: stats.Info = count; break;
-            }
+             switch (key)
+             {
+                 case 1: stats.Critical = count; break;
+                 case 2: stats.High     = count; break;
+                 case 3: stats.Medium   = count; break;
+                 case 4: stats.Low      = count; break;
+                 case 5: stats.Info     = count; break;
+             }
 
-            stats.Total += count;
-        }
+             stats.Total += count;
+         }
 
-        return stats;
+         return stats;
     }
 }
