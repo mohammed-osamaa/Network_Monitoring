@@ -15,4 +15,56 @@ obj/
 
 # OS files
 .DS_Store
+Thumbs.d############################
+# Build folders (.NET)
+############################
+bin/
+obj/
+out/
+
+############################
+# Visual Studio / Rider / VSCode
+############################
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+############################
+# Build outputs (.NET)
+############################
+*.dll
+*.pdb
+*.exe
+*.cache
+
+############################
+# Node / React (Client)
+############################
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.development
+.env.production
+
+############################
+# Logs
+############################
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+############################
+# OS files
+############################
+.DS_Store
 Thumbs.db
+
+############################
+# Temporary / backup files
+############################
+*~b
